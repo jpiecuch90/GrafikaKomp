@@ -1,414 +1,723 @@
-ï»¿#include <stdlib.h>
-#include <cstdio>
-#include "../Library/glext.h"
 
-#include "../packages/nupengl.core.0.1.0.1/build/native/include/GL/glut.h"
+#include "stdafx.h"
 
-// staÅ‚e do obsÅ‚ugi menu podrÄ™cznego
+#include <GL/glut.h>
+
+#include <stdlib.h>
+
+#include <stdio.h>
+
+#include "glext.h"
+
+
+// sta³e do obs³ugi menu podrêcznego
+
 
 enum
+
 {
-	MAG_FILTER,     // filtr powiÄ™kszajÄ…cy
-	MIN_FILTER,     // filtr pomniejszajÄ…cy
-	FULL_WINDOW,    // aspekt obrazu - caÅ‚e okno
+
+	MAG_FILTER,     // filtr powiêkszaj¹cy
+
+	MIN_FILTER,     // filtr pomniejszaj¹cy
+
+	FULL_WINDOW,    // aspekt obrazu - ca³e okno
+
 	ASPECT_1_1,     // aspekt obrazu 1:1
-	EXIT            // wyjÅ›cie
+
+	EXIT            // wyjœcie
+
 };
+
 
 // aspekt obrazu
 
+
 int aspect = FULL_WINDOW;
 
-// usuniÄ™cie definicji makr near i far
+
+// usuniêcie definicji makr near i far
+
 
 #ifdef near
+
 #undef near
-#endif
-#ifdef far
-#undef far
+
 #endif
 
-// rozmiary bryÅ‚y obcinania
+#ifdef far
+
+#undef far
+
+#endif
+
+
+// rozmiary bry³y obcinania
+
 
 const GLdouble left = -2.0;
+
 const GLdouble right = 2.0;
+
 const GLdouble bottom = -2.0;
+
 const GLdouble top = 2.0;
+
 const GLdouble near = 3.0;
+
 const GLdouble far = 7.0;
 
-// wspÃ³Å‚czynnik skalowania
+
+// wspó³czynnik skalowania
+
 
 GLfloat scale = 1.05;
 
-// identyfikatory list wyÅ›wietlania
+
+// identyfikatory list wyœwietlania
+
 
 GLint RECT_LIST;
+
 GLint TEXTURE_256_LIST, TEXTURE_128_LIST, TEXTURE_64_LIST;
 
-// filtr powiÄ™kszajÄ…cy
+
+// filtr powiêkszaj¹cy
+
 
 GLint mag_filter = GL_NEAREST;
 
-// filtr pomniejszajÄ…cy
+
+// filtr pomniejszaj¹cy
+
 
 GLint min_filter = GL_NEAREST;
 
-// funkcja generujÄ…ca scenÄ™ 3D
+
+// funkcja generuj¹ca scenê 3D
+
 
 void DisplayScene()
+
 {
-	// kolor tÅ‚a - zawartoÅ›Ä‡ bufora koloru
+
+	// kolor t³a - zawartoœæ bufora koloru
+
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 
+
 	// czyszczenie bufora koloru
+
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	// wybÃ³r macierzy modelowania
+
+	// wybór macierzy modelowania
+
 	glMatrixMode(GL_MODELVIEW);
 
+
 	// macierz modelowania = macierz jednostkowa
+
 	glLoadIdentity();
 
-	// przesuniÄ™cie ukÅ‚adu wspÃ³Å‚rzÄ™dnych obiektÃ³w do Å›rodka bryÅ‚y odcinania
+
+	// przesuniêcie uk³adu wspó³rzêdnych obiektów do œrodka bry³y odcinania
+
 	glTranslatef(0, 0, -(near + far) / 2);
 
+
 	// skalowanie obiektu - klawisze "+" i "-"
+
 	glScalef(scale, 1.0, 1.0);
 
-	// wÅ‚Ä…czenie teksturowania jednowymiarowego
+
+	// w³¹czenie teksturowania jednowymiarowego
+
 	glEnable(GL_TEXTURE_1D);
 
-	// tryb upakowania bajtÃ³w danych tekstury
+
+	// tryb upakowania bajtów danych tekstury
+
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-	// filtr powiÄ™kszajÄ…cy
+
+	// filtr powiêkszaj¹cy
+
 	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, mag_filter);
 
-	// filtr pomniejszajÄ…cy
+
+	// filtr pomniejszaj¹cy
+
 	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, min_filter);
 
-	// usunuiÄ™cie bÅ‚Ä™dÃ³w przy renderingu brzegu tekstury
+
+	// usunuiêcie b³êdów przy renderingu brzegu tekstury
+
 	if (mag_filter == GL_LINEAR)
+
 		glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 
-	// wyÅ›wietlenie tekstur
+
+	// wyœwietlenie tekstur
+
 	glCallList(TEXTURE_256_LIST);
+
 	glCallList(TEXTURE_128_LIST);
+
 	glCallList(TEXTURE_64_LIST);
 
-	// skierowanie poleceÃ± do wykonania
+
+	// skierowanie polecen do wykonania
+
 	glFlush();
 
-	// zamiana buforÃ³w koloru
+
+	// zamiana buforów koloru
+
 	glutSwapBuffers();
+
 }
 
-// zmiana wielkoÅ›ci okna
+
+// zmiana wielkoœci okna
+
 
 void Reshape(int width, int height)
+
 {
-	// obszar renderingu - caÅ‚e okno
+
+	// obszar renderingu - ca³e okno
+
 	glViewport(0, 0, width, height);
 
-	// wybÃ³r macierzy rzutowania
+
+	// wybór macierzy rzutowania
+
 	glMatrixMode(GL_PROJECTION);
 
+
 	// macierz rzutowania = macierz jednostkowa
+
 	glLoadIdentity();
 
-	// parametry bryÅ‚y obcinania
+
+	// parametry bry³y obcinania
+
 	if (aspect == ASPECT_1_1)
+
 	{
-		// wysokoÅ›Ã¦ okna wiÄ™ksza od wysokoÅ›ci okna
+
+		// wysokoœa okna wiêksza od wysokoœci okna
+
 		if (width < height && width > 0)
+
 			glFrustum(left, right, bottom*height / width, top*height / width, near, far);
+
 		else
 
-			// szerokoÅ›Ã¦ okna wiÄ™ksza lub rÃ³wna wysokoÅ›ci okna
+
+			// szerokoœa okna wiêksza lub równa wysokoœci okna
+
 			if (width >= height && height > 0)
+
 				glFrustum(left*width / height, right*width / height, bottom, top, near, far);
+
 	}
+
 	else
+
 		glFrustum(left, right, bottom, top, near, far);
 
+
 	// generowanie sceny 3D
+
 	DisplayScene();
+
 }
 
-// obsÅ‚uga klawiatury
+
+// obs³uga klawiatury
+
 
 void Keyboard(unsigned char key, int x, int y)
+
 {
+
 	// klawisz +
+
 	if (key == '+')
+
 		scale += 0.05;
+
 	else
 
+
 		// klawisz -
+
 		if (key == '-' && scale > 0.05)
+
 			scale -= 0.05;
 
+
 	// narysowanie sceny
+
 	DisplayScene();
+
 }
 
-// obsÅ‚uga menu podrÄ™cznego
+
+// obs³uga menu podrêcznego
+
 
 void Menu(int value)
+
 {
+
 	switch (value)
+
 	{
-		// filtr powiÄ™kszajÄ…cy: GL_NEAREST/GL_LINEAR
+
+		// filtr powiêkszaj¹cy: GL_NEAREST/GL_LINEAR
+
 	case MAG_FILTER:
+
 		if (mag_filter == GL_NEAREST)
+
 			mag_filter = GL_LINEAR;
+
 		else
+
 			mag_filter = GL_NEAREST;
+
 		DisplayScene();
+
 		break;
 
-		// filtr pomniejszajÄ…cy: GL_NEAREST/GL_LINEAR
+
+		// filtr pomniejszaj¹cy: GL_NEAREST/GL_LINEAR
+
 	case MIN_FILTER:
+
 		if (min_filter == GL_NEAREST)
+
 			min_filter = GL_LINEAR;
+
 		else
+
 			min_filter = GL_NEAREST;
+
 		DisplayScene();
+
 		break;
 
-		// obszar renderingu - caÅ‚e okno
+
+		// obszar renderingu - ca³e okno
+
 	case FULL_WINDOW:
+
 		aspect = FULL_WINDOW;
+
 		Reshape(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
+
 		break;
+
 
 		// obszar renderingu - aspekt 1:1
+
 	case ASPECT_1_1:
+
 		aspect = ASPECT_1_1;
+
 		Reshape(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
+
 		break;
 
-		// wyjÅ›cie
+
+		// wyjœcie
+
 	case EXIT:
+
 		exit(0);
+
 	}
+
 }
 
-// utworzenie list wyÅ›wietlania
+
+// utworzenie list wyœwietlania
+
 
 void GenerateDisplayLists()
+
 {
-	// generowanie identyfikatora listy wyÅ›wietlania
+
+	// generowanie identyfikatora listy wyœwietlania
+
 	RECT_LIST = glGenLists(1);
 
-	// lista wyÅ›wietlania - prostokÄ…t
+
+	// lista wyœwietlania - prostok¹t
+
 	glNewList(RECT_LIST, GL_COMPILE);
 
-	// naÅ‚oÂ¿enie tekstury na prostokÄ…t
+
+	// na³o?enie tekstury na prostok¹t
+
 	glBegin(GL_QUADS);
+
 	glTexCoord1f(1.0);
+
 	glVertex2f(1.5, 0.7);
+
 	glTexCoord1f(0.0);
+
 	glVertex2f(-1.5, 0.7);
+
 	glTexCoord1f(0.0);
+
 	glVertex2f(-1.5, -0.7);
+
 	glTexCoord1f(1.0);
+
 	glVertex2f(1.5, -0.7);
+
 	glEnd();
 
-	// koniec listy wyÅ›wietlania
+
+	// koniec listy wyœwietlania
+
 	glEndList();
 
-	// sprawdzenie czy implementacja biblioteki obsÅ‚uguje tekstury o wymiarze 256
+
+	// sprawdzenie czy implementacja biblioteki obs³uguje tekstury o wymiarze 256
+
 	GLint size;
+
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &size);
-	if (size < 256)
+
+	if (size < 2048)
+
 	{
+
 		printf("Rozmiar tekstur mniejszy od 256");
+
 		exit(0);
+
 	}
+
 
 	// dane tekstury
-	GLubyte texture[256 * 3];
+
+	GLubyte texture[2048 * 3];
+
 
 	// przygotowanie danych tekstury RGB
-	for (int i = 0; i < 256; i++)
+	int n = 9; //JOWISZ 
+	for (int i = 0; i < 2048; i++)
+
 	{
+
 		texture[3 * i + 0] = i;
+
 		texture[3 * i + 1] = i;
+
 		texture[3 * i + 2] = i;
+
 	}
 
-	// generowanie identyfikatora listy wyÅ›wietlania
+
+	// generowanie identyfikatora listy wyœwietlania
+
 	TEXTURE_256_LIST = glGenLists(1);
 
-	// lista wyÅ›wietlania - tekstura o szerokoÅ›ci 256 tekseli
+
+	// lista wyœwietlania - tekstura o szerokoœci 256 tekseli
+
 	glNewList(TEXTURE_256_LIST, GL_COMPILE);
 
-	// definiowanie tekstury
-	glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB, 256, 0, GL_RGB, GL_UNSIGNED_BYTE, texture);
 
-	// odÅ‚oÂ¿enie macierzy modelowania na stos
+	// definiowanie tekstury
+
+	glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB, 2048, 0, GL_RGB, GL_UNSIGNED_BYTE, texture);
+
+
+	// od³o?enie macierzy modelowania na stos
+
 	glPushMatrix();
 
-	// przesuniÄ™cie prostokÄ…ta do gÃ³ry o dwie jednostki
+
+	// przesuniêcie prostok¹ta do góry o dwie jednostki
+
 	glTranslatef(0.0, 2.0, 0.0);
 
-	// naÅ‚oÂ¿enie tekstury na prostokÄ…t
+
+	// na³o?enie tekstury na prostok¹t
+
 	glCallList(RECT_LIST);
 
-	// zdjÄ™cie macierzy modelowania ze stosu
+
+	// zdjêcie macierzy modelowania ze stosu
+
 	glPopMatrix();
 
-	// koniec listy wyÅ›wietlania
+
+	// koniec listy wyœwietlania
+
 	glEndList();
+
 
 	//  przygotowanie danych tekstury LUMINANCE
-	for (int i = 0; i < 128; i++)
+
+	for (int i = 0; i < 1024; i++)
+
 	{
+
 		texture[i] = i * 2;
+
 	}
 
-	// generowanie identyfikatora listy wyÅ›wietlania
+
+	// generowanie identyfikatora listy wyœwietlania
+
 	TEXTURE_128_LIST = glGenLists(1);
 
-	// lista wyÅ›wietlania - tekstura o szerokoÅ›ci 128 tekseli
+
+	// lista wyœwietlania - tekstura o szerokoœci 128 tekseli
+
 	glNewList(TEXTURE_128_LIST, GL_COMPILE);
 
-	// definiowanie tekstury
-	glTexImage1D(GL_TEXTURE_1D, 0, GL_LUMINANCE, 128, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, texture);
 
-	// naÅ‚oÂ¿enie tekstury na prostokÄ…t
+	// definiowanie tekstury
+
+	glTexImage1D(GL_TEXTURE_1D, 0, GL_LUMINANCE, 1024, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, texture);
+
+
+	// na³o?enie tekstury na prostok¹t
+
 	glCallList(RECT_LIST);
 
-	// koniec listy wyÅ›wietlania
+
+	// koniec listy wyœwietlania
+
 	glEndList();
+
 
 	// przygotowanie danych tekstury INTENSITY
-	for (int i = 0; i < 64; i++)
+
+	for (int i = 0; i < 512; i++)
+
 	{
+
 		texture[3 * i] = i * 4;
+
 	}
 
-	// generowanie identyfikatora listy wyÅ›wietlania
+
+	// generowanie identyfikatora listy wyœwietlania
+
 	TEXTURE_64_LIST = glGenLists(1);
 
-	// lista wyÅ›wietlania - tekstura o szerokoÅ›ci 64 tekseli
+
+	// lista wyœwietlania - tekstura o szerokoœci 64 tekseli
+
 	glNewList(TEXTURE_64_LIST, GL_COMPILE);
 
-	// definiowanie tekstury
-	glTexImage1D(GL_TEXTURE_1D, 0, GL_INTENSITY, 64, 0, GL_RGB, GL_UNSIGNED_BYTE, texture);
 
-	// odÅ‚oÂ¿enie macierzy modelowania na stos
+	// definiowanie tekstury
+
+	glTexImage1D(GL_TEXTURE_1D, 0, GL_INTENSITY, 512, 0, GL_RGB, GL_UNSIGNED_BYTE, texture);
+
+
+	// od³o?enie macierzy modelowania na stos
+
 	glPushMatrix();
 
-	// przesuniÄ™cie prostokÄ…ta do doÅ‚u o dwie jednostki
+
+	// przesuniêcie prostok¹ta do do³u o dwie jednostki
+
 	glTranslatef(0.0, -2.0, 0.0);
 
-	// naÅ‚oÂ¿enie tekstury na prostokÄ…t
+
+	// na³o?enie tekstury na prostok¹t
+
 	glCallList(RECT_LIST);
 
-	// zdjÄ™cie macierzy modelowania ze stosu
+
+	// zdjêcie macierzy modelowania ze stosu
+
 	glPopMatrix();
 
-	// koniec listy wyÅ›wietlania
+
+	// koniec listy wyœwietlania
+
 	glEndList();
+
 }
 
-// sprawdzenie i przygotowanie obsÅ‚ugi wybranych rozszerzeÃ±
+
+// sprawdzenie i przygotowanie obs³ugi wybranych rozszerzen
+
 
 void ExtensionSetup()
+
 {
+
 	// pobranie numeru wersji biblioteki OpenGL
+
 	const char *version = (char*)glGetString(GL_VERSION);
 
+
 	// odczyt wersji OpenGL
+
 	int major = 0, minor = 0;
+
 	if (sscanf_s(version, "%d.%d", &major, &minor) != 2)
+
 	{
+
 #ifdef WIN32
-		printf("BÅ‚Ä™dny format wersji OpenGL\n");
+
+		printf("B³êdny format wersji OpenGL\n");
+
 #else
+
 
 		printf("Bledny format wersji OpenGL\n");
+
 #endif
 
+
 		exit(0);
+
 	}
+
 
 	// sprawdzenie czy jest co najmniej wersja 1.2 OpenGL lub
-	// czy jest obsÅ‚ugiwane rozszerzenie GL_SGIS_texture_edge_clamp
+
+	// czy jest obs³ugiwane rozszerzenie GL_SGIS_texture_edge_clamp
+
 	if (!(major > 1 || minor >= 2) &&
+
 		!glutExtensionSupported("GL_SGIS_texture_edge_clamp"))
+
 	{
+
 		printf("Brak rozszerzenia GL_SGIS_texture_edge_clamp!\n");
+
 		exit(0);
+
 	}
+
 }
 
+
 int main(int argc, char *argv[])
+
 {
+
 	// inicjalizacja biblioteki GLUT
+
 	glutInit(&argc, argv);
 
+
 	// inicjalizacja bufora ramki
+
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
 
-	// rozmiary gÅ‚Ã³wnego okna programu
+
+	// rozmiary g³ównego okna programu
+
 	glutInitWindowSize(500, 500);
 
-	// utworzenie gÅ‚Ã³wnego okna programu
+
+	// utworzenie g³ównego okna programu
+
 	glutCreateWindow("Tekstura 1D");
 
-	// doÅ‚Ä…czenie funkcji generujÄ…cej scenÄ™ 3D
+
+	// do³¹czenie funkcji generuj¹cej scenê 3D
+
 	glutDisplayFunc(DisplayScene);
 
-	// doÅ‚Ä…czenie funkcji wywoÅ‚ywanej przy zmianie rozmiaru okna
+
+	// do³¹czenie funkcji wywo³ywanej przy zmianie rozmiaru okna
+
 	glutReshapeFunc(Reshape);
 
-	// doÅ‚Ä…czenie funkcji obsÅ‚ugi klawiatury
+
+	// do³¹czenie funkcji obs³ugi klawiatury
+
 	glutKeyboardFunc(Keyboard);
 
+
 	// utworzenie podmenu - Aspekt obrazu
+
 	int MenuAspect = glutCreateMenu(Menu);
+
 #ifdef WIN32
 
-	glutAddMenuEntry("Aspekt obrazu - caÅ‚e okno", FULL_WINDOW);
+
+	glutAddMenuEntry("Aspekt obrazu - ca³e okno", FULL_WINDOW);
+
 #else
 
+
 	glutAddMenuEntry("Aspekt obrazu - cale okno", FULL_WINDOW);
+
 #endif
+
 
 	glutAddMenuEntry("Aspekt obrazu 1:1", ASPECT_1_1);
 
-	// menu gÅ‚Ã³wne
+
+	// menu g³ówne
+
 	glutCreateMenu(Menu);
+
 
 #ifdef WIN32
 
-	glutAddMenuEntry("Filtr powiÄ™kszajÄ…cy: GL_NEAREST/GL_LINEAR", MAG_FILTER);
-	glutAddMenuEntry("Filtr pomniejszajÄ…cy: GL_NEAREST/GL_LINEAR", MIN_FILTER);
+
+	glutAddMenuEntry("Filtr powiêkszaj¹cy: GL_NEAREST/GL_LINEAR", MAG_FILTER);
+
+	glutAddMenuEntry("Filtr pomniejszaj¹cy: GL_NEAREST/GL_LINEAR", MIN_FILTER);
+
 	glutAddSubMenu("Aspekt obrazu", MenuAspect);
-	glutAddMenuEntry("WyjÅ›cie", EXIT);
+
+	glutAddMenuEntry("Wyjœcie", EXIT);
+
 #else
 
+
 	glutAddMenuEntry("Filtr powiekszajacy: GL_NEAREST/GL_LINEAR", MAG_FILTER);
+
 	glutAddMenuEntry("Filtr pomniejszajacy: GL_NEAREST/GL_LINEAR", MIN_FILTER);
+
 	glutAddSubMenu("Aspekt obrazu", MenuAspect);
+
 	glutAddMenuEntry("Wyjscie", EXIT);
+
 #endif
 
-	// okreÅ›lenie przycisku myszki obsÅ‚ugujÄ…cego menu podrÄ™czne
+
+	// okreœlenie przycisku myszki obs³uguj¹cego menu podrêczne
+
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
 
-	// utworzenie list wyÅ›wietlania
+
+	// utworzenie list wyœwietlania
+
 	GenerateDisplayLists();
 
-	// sprawdzenie i przygotowanie obsÅ‚ugi wybranych rozszerzeÃ±
+
+	// sprawdzenie i przygotowanie obs³ugi wybranych rozszerzen
+
 	ExtensionSetup();
 
-	// wprowadzenie programu do obsÅ‚ugi pÄ™tli komunikatÃ³w
+
+	// wprowadzenie programu do obs³ugi pêtli komunikatów
+
 	glutMainLoop();
+
 	return 0;
-}
+}//parametr n rozmiar tekstury tak jak wielokot
