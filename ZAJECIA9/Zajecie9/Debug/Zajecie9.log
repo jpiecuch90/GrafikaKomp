@@ -1,0 +1,8 @@
+﻿  targa.cpp
+  Źródło.cpp
+c:\users\jarek\desktop\sem4\grafika\grafikakomputerowaath-master\zajecie09\zajecie9\zajecie9\źródło.cpp(476): warning C4244: "+=": konwersja z "double" do "GLfloat", możliwa utrata danych
+c:\users\jarek\desktop\sem4\grafika\grafikakomputerowaath-master\zajecie09\zajecie9\zajecie9\źródło.cpp(478): warning C4244: "-=": konwersja z "double" do "GLfloat", możliwa utrata danych
+c:\users\jarek\desktop\sem4\grafika\grafikakomputerowaath-master\zajecie09\zajecie9\zajecie9\źródło.cpp(488): warning C4305: "+=": obcięcie z "double" do "GLfloat"
+c:\users\jarek\desktop\sem4\grafika\grafikakomputerowaath-master\zajecie09\zajecie9\zajecie9\źródło.cpp(493): warning C4305: "-=": obcięcie z "double" do "GLfloat"
+  Generowanie kodu...
+  Zajecie9.vcxproj -> C:\Users\Jarek\Desktop\Sem4\Grafika\GrafikaKomputerowaATH-master\Zajecie09\Zajecie9\Debug\Zajecie9.exe
